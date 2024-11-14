@@ -3,47 +3,106 @@ pragma solidity >=0.5.0;
 
 type Id is bytes32;
 
+// @zhTian The market id is a bytes32 keccak256 hash of the 5 parameters of a market.
+// @zhTian using idToMarketParams to recover the parameters of a given market from the bytes32 id.
+// 主要用于描述一个借贷市场的基本信息。
 struct MarketParams {
-    address loanToken;
-    address collateralToken;
-    address oracle;
-    address irm;
-    uint256 lltv;
+    address loanToken;        // 借贷市场中使用的贷款代币的地址
+    address collateralToken;  // 借贷市场中使用的抵押品代币的地址
+    address oracle;           // 用于获取市场价格的预言机地址
+    address irm;              // 利率模型的地址
+    uint256 lltv;            // 贷款价值比（Loan-to-Value Ratio）
 }
+/**
+1. loanToken (address):
+这个字段表示市场中用于借贷的代币的地址。例如，用户可以借入或贷出 USDC、DAI 等稳定币。
+示例：loanToken = 0xUSDCAddress（USDC 的合约地址）。
+
+2. collateralToken (address):
+这个字段表示市场中用于抵押的代币的地址。用户在借款时需要提供抵押品，以确保借款的安全性。
+示例：collateralToken = 0xETHAddress（以太坊的合约地址）。
+
+3. oracle (address):
+这个字段表示用于获取市场价格的预言机的地址。预言机提供实时的市场价格信息，以便计算抵押品的价值和贷款价值比。
+示例：oracle = 0xOracleAddress（某个预言机合约的地址，例如 Chainlink 的预言机）。
+
+4. irm (address):
+这个字段表示市场中使用的利率模型的地址。利率模型决定了借款和贷款的利率，通常基于市场供需情况。
+示例：irm = 0xIRModelAddress（某个利率模型合约的地址）。
+
+5. lltv (uint256):
+这个字段表示贷款价值比（Loan-to-Value Ratio），通常是一个百分比值，表示用户可以借入的金额与其抵押品价值的比率。例如，LLTV 为 75% 表示用户可以借入抵押品价值的 75%。
+示例：lltv = 75（表示 75% 的贷款价值比）。
+
+假设我们要创建一个新的借贷市场，使用以下参数：
+贷款代币：USDC
+抵押品代币：ETH
+预言机：Chainlink 预言机
+利率模型：某个自定义的利率模型合约
+贷款价值比：75%
+我们可以创建一个 MarketParams 结构体实例如下：
+MarketParams memory marketParams = MarketParams({
+    loanToken: 0xUSDCAddress,          // USDC 的合约地址
+    collateralToken: 0xETHAddress,     // ETH 的合约地址
+    oracle: 0xChainlinkOracleAddress,   // Chainlink 预言机的合约地址
+    irm: 0xCustomIRModelAddress,        // 自定义利率模型的合约地址
+    lltv: 75                             // 贷款价值比为 75%
+});
+
+ */
+// loanToken 是市场中用于借贷的代币（例如 USDC、DAI 等）。
 
 /// @dev Warning: For `feeRecipient`, `supplyShares` does not contain the accrued shares since the last interest
 /// accrual.
 struct Position {
-    uint256 supplyShares;
-    uint128 borrowShares;
-    uint128 collateral;
+    uint256 supplyShares;  // 用户在市场中提供的股份数量
+    uint128 borrowShares;   // 用户在市场中借入的股份数量
+    uint128 collateral;      // 用户在市场中提供的抵押品数量
 }
+// 抵押品是用户为了借入资产而提供的保证金，通常用于确保借款的安全性。
+
+// @zhTian It contains the state of a market.
 
 /// @dev Warning: `totalSupplyAssets` does not contain the accrued interest since the last interest accrual.
 /// @dev Warning: `totalBorrowAssets` does not contain the accrued interest since the last interest accrual.
 /// @dev Warning: `totalSupplyShares` does not contain the additional shares accrued by `feeRecipient` since the last
 /// interest accrual.
+
+// share: 代表用户在市场中提供的流动性或借入的资产的份额
+// 用于表示用户在市场中的权益。
+
+/**
+流动性管理：
+通过将数量和股份关联起来，市场能够有效地管理流动性，确保用户的权益与他们提供的资产相匹配。
+收益分配：
+股份通常用于计算用户在市场中获得的收益或支付的费用。用户的股份越多，他们在市场中获得的收益或承担的费用也越多。
+ */
 struct Market {
-    uint128 totalSupplyAssets;
-    uint128 totalSupplyShares;
-    uint128 totalBorrowAssets;
-    uint128 totalBorrowShares;
-    uint128 lastUpdate;
-    uint128 fee;
+    uint128 totalSupplyAssets;  // 市场中总供应的资产数量
+    uint128 totalSupplyShares;   // 市场中总供应的股份数量
+    uint128 totalBorrowAssets;   // 市场中总借入的资产数量
+    uint128 totalBorrowShares;    // 市场中总借入的股份数量
+    uint128 lastUpdate;          // 上次更新的时间戳
+    uint128 fee;                 // 市场的费用
 }
+/*
+totalSupplyAssets 不包含自上次利息累积以来的已累积利息。
+totalBorrowAssets 不包含自上次利息累积以来的已累积利息。
+totalSupplyShares 不包含自上次利息累积以来由 feeRecipient 累积的额外股份
+ */
 
 struct Authorization {
-    address authorizer;
-    address authorized;
-    bool isAuthorized;
-    uint256 nonce;
-    uint256 deadline;
+    address authorizer;      // 授权者的地址
+    address authorized;      // 被授权者的地址
+    bool isAuthorized;       // 授权状态（true 或 false）
+    uint256 nonce;          // 随机数，用于防止重放攻击
+    uint256 deadline;       // 签名的截止时间
 }
 
 struct Signature {
-    uint8 v;
-    bytes32 r;
-    bytes32 s;
+    uint8 v;                // 签名的 v 值
+    bytes32 r;             // 签名的 r 值
+    bytes32 s;             // 签名的 s 值
 }
 
 /// @dev This interface is used for factorizing IMorphoStaticTyping and IMorpho.
