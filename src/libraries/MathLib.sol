@@ -42,4 +42,35 @@ library MathLib {
 
         return firstTerm + secondTerm + thirdTerm;
     }
+    /**
+    用于计算复利的函数，基于泰勒级数展开（Taylor series expansion）。它通过计算前几项来近似计算复利的结果。
+
+    x：表示利率或增长因子，通常是一个固定点数（例如，1e18 表示 1）。
+n：表示时间单位（例如，经过的时间或周期数）。
+
+计算第一项：
+uint256 firstTerm = x * n;：计算泰勒级数的第一项，表示在 n 个时间单位内的线性增长。
+示例：如果 x = 1e18（表示 1）且 n = 1，则 firstTerm = 1e18 * 1 = 1e18。
+
+
+计算第二项：
+uint256 secondTerm = mulDivDown(firstTerm, firstTerm, 2 * WAD);：计算泰勒级数的第二项，表示二次项的贡献。
+示例：如果 firstTerm = 1e18，则：
+     secondTerm = mulDivDown(1e18, 1e18, 2 * 1e18) = (1e36 / 2e18) = 0.5e18 = 5e17;
+
+4. 计算第三项：
+uint256 thirdTerm = mulDivDown(secondTerm, firstTerm, 3 * WAD);：计算泰勒级数的第三项，表示三次项的贡献。
+示例：如果 secondTerm = 5e17 和 firstTerm = 1e18，则：
+
+
+     thirdTerm = mulDivDown(5e17, 1e18, 3 * 1e18) = (5e35 / 3e18) ≈ 1.66667e17;
+
+
+5. 返回结果：
+return firstTerm + secondTerm + thirdTerm;：将所有项相加，返回复利的近似值。
+示例：如果 firstTerm = 1e18，secondTerm = 5e17，thirdTerm ≈ 1.66667e17，则：
+
+     return 1e18 + 5e17 + 1.66667e17 ≈ 1.66667e18;
+    
+     */
 }
