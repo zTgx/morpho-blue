@@ -67,3 +67,27 @@ require(success, "Transfer failed");
 
 
  */
+
+
+/**
+address的其他属性
+
+1. code
+address(token).code：返回与地址 token 相关联的字节码的长度。如果长度大于 0，则表示该地址是一个合约地址；如果为 0，则表示该地址是一个外部账户（EOA）。
+2. balance
+address(token).balance：返回与地址 token 相关联的以 wei 为单位的以太币余额。可以用来检查某个地址的以太币余额。
+3. transfer
+address(token).transfer(amount)：将指定数量的以太币从当前合约转移到指定地址。注意，transfer 方法在 Solidity 0.8.0 及以后的版本中不再推荐使用，建议使用 call 方法。
+4. send
+address(token).send(amount)：将指定数量的以太币发送到指定地址。返回一个布尔值，指示发送是否成功。send 方法也不再推荐使用。
+5. call
+address(token).call{value: amount}("")：用于调用合约的函数或发送以太币。call 是一种更灵活的方式，可以用于调用合约的任意函数。
+6. delegatecall
+address(token).delegatecall(...)：用于在当前合约上下文中调用另一个合约的函数。与 call 不同，delegatecall 会保留调用者的上下文。
+7. staticcall
+address(token).staticcall(...)：用于静态调用合约的函数，确保不会修改状态。
+8. isContract
+isContract(address account)：虽然不是 address 类型的内置方法，但可以通过 address(account).code.length > 0 来实现，检查给定地址是否是合约地址。
+
+
+ */
