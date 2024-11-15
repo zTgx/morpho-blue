@@ -1,6 +1,24 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
+/**
+WAD 是 "Weighted Average Decimal" 的缩写，表示加权平均小数。
+WAD 通常是一个常量，用于表示固定点数的基数。它的值通常设定为 1e18。这个常量的主要目的是在进行数学运算时保持高精度，避免浮点数运算带来的精度问题。
+
+假设我们有一个利率为 5% 的情况，我们可以使用 WAD 来表示这个利率：
+uint256 interestRate = 5 * WAD / 100; // 5% 的利率表示为 0.05 * WAD
+
+
+在 Solidity 和 DeFi 中，还有其他类似的常量，例如：
+RAY：通常表示 10e27
+ ，用于更高精度的固定点数运算。
+RAD：通常表示 10e45
+ ，用于极高精度的固定点数运算。
+
+RAY 通常被解释为 "Rational Average Yields" 或 "Rational Average Decimal"。
+RAD 通常被解释为 "Rational Average Decimal" 或 "Rational Average Division"。
+
+ */
 uint256 constant WAD = 1e18;
 
 /// @title MathLib
